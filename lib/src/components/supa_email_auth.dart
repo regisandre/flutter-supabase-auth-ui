@@ -241,6 +241,18 @@ class SupaEmailAuth extends StatefulWidget {
   /// Optional widget builder to render below the form
   final Widget Function(BuildContext)? footerBuilder;
 
+  /// Cloudflare Turnstile (or hCaptcha) token. Required when the Supabase
+  /// project has CAPTCHA protection enabled on the auth endpoints — the token
+  /// is forwarded to `signInWithPassword`, `signUp`, and
+  /// `resetPasswordForEmail`. Tokens are single-use and expire after 5 minutes,
+  /// so the parent should refresh the widget after each submission.
+  final String? captchaToken;
+
+  /// Called right before each auth API call when [captchaToken] is null/empty.
+  /// Use this to surface a "please complete the CAPTCHA" message in the parent.
+  /// If non-null and returns false, the auth call is aborted.
+  final bool Function()? onCaptchaMissing;
+
   /// {@macro supa_email_auth}
   const SupaEmailAuth({
     super.key,
@@ -264,6 +276,8 @@ class SupaEmailAuth extends StatefulWidget {
     this.clearOnError = false,
     this.headerBuilder,
     this.footerBuilder,
+    this.captchaToken,
+    this.onCaptchaMissing,
   });
 
   @override
@@ -637,6 +651,12 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    final captchaToken = widget.captchaToken;
+    if ((captchaToken == null || captchaToken.isEmpty) &&
+        widget.onCaptchaMissing != null) {
+      final shouldContinue = widget.onCaptchaMissing!.call();
+      if (!shouldContinue) return;
+    }
     setState(() {
       _isLoading = true;
     });
@@ -645,6 +665,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
         final response = await supabase.auth.signInWithPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
+          captchaToken: captchaToken,
         );
         widget.onSignInComplete.call(response);
       } else {
@@ -667,6 +688,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
             password: _passwordController.text.trim(),
             emailRedirectTo: widget.redirectTo,
             data: _resolveData(),
+            captchaToken: captchaToken,
           );
         }
         widget.onSignUpComplete.call(response);
@@ -709,6 +731,12 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
         _emailFocusNode.requestFocus();
         return;
       }
+      final captchaToken = widget.captchaToken;
+      if ((captchaToken == null || captchaToken.isEmpty) &&
+          widget.onCaptchaMissing != null) {
+        final shouldContinue = widget.onCaptchaMissing!.call();
+        if (!shouldContinue) return;
+      }
       setState(() {
         _isLoading = true;
       });
@@ -717,6 +745,7 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
       await supabase.auth.resetPasswordForEmail(
         email,
         redirectTo: widget.resetPasswordRedirectTo ?? widget.redirectTo,
+        captchaToken: captchaToken,
       );
       widget.onPasswordResetEmailSent?.call();
       // FIX use_build_context_synchronously
