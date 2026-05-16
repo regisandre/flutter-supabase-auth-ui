@@ -253,6 +253,14 @@ class SupaEmailAuth extends StatefulWidget {
   /// If non-null and returns false, the auth call is aborted.
   final bool Function()? onCaptchaMissing;
 
+  /// Optional builder rendered inside the form, immediately above the
+  /// Sign In / Sign Up / Send Password Reset submit button. Use this slot to
+  /// host a CAPTCHA widget (Cloudflare Turnstile, hCaptcha, …) so the user
+  /// solves the challenge right before submission rather than at the top of
+  /// the form. The same builder is shown in all three flows (sign in, sign
+  /// up, password recovery).
+  final Widget Function(BuildContext)? captchaBuilder;
+
   /// {@macro supa_email_auth}
   const SupaEmailAuth({
     super.key,
@@ -278,6 +286,7 @@ class SupaEmailAuth extends StatefulWidget {
     this.footerBuilder,
     this.captchaToken,
     this.onCaptchaMissing,
+    this.captchaBuilder,
   });
 
   @override
@@ -561,6 +570,10 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
                           spacer(16),
                         ])
                     .expand((element) => element),
+              if (widget.captchaBuilder != null) ...[
+                widget.captchaBuilder!(context),
+                spacer(16),
+              ],
               ElevatedButton(
                 onPressed: _isLoading ? null : _signInSignUp,
                 child: (_isLoading)
@@ -605,6 +618,10 @@ class _SupaEmailAuthState extends State<SupaEmailAuth> {
             ],
             if (_isSigningIn && _isRecoveringPassword) ...[
               spacer(16),
+              if (widget.captchaBuilder != null) ...[
+                widget.captchaBuilder!(context),
+                spacer(16),
+              ],
               ElevatedButton(
                 onPressed: _isLoading ? null : _passwordRecovery,
                 child: _isLoading
