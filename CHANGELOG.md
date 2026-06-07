@@ -1,3 +1,7 @@
+## 0.6.6
+
+- fix: Support `font_awesome_flutter` 11 (Flutter `IconData` is now `final`). Bumped constraint to `^11.0.0` and migrated `SupaSocialsAuth` to the new `FaIconData` API (`Icon` → `FaIcon`, getter returns `FaIconData`).
+
 ## 0.6.5
 
 - feat: Add `clearOnError` (bool, default `false`) to `SupaEmailAuth` and `SupaPhoneAuth` — clears password fields after an authentication error

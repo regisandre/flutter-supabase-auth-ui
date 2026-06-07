@@ -13,7 +13,7 @@ import 'package:supabase_auth_ui/src/utils/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 extension on OAuthProvider {
-  IconData get iconData => switch (this) {
+  FaIconData get iconData => switch (this) {
         OAuthProvider.apple => FontAwesomeIcons.apple,
         OAuthProvider.azure => FontAwesomeIcons.microsoft,
         OAuthProvider.bitbucket => FontAwesomeIcons.bitbucket,
@@ -28,7 +28,7 @@ extension on OAuthProvider {
         OAuthProvider.spotify => FontAwesomeIcons.spotify,
         OAuthProvider.twitch => FontAwesomeIcons.twitch,
         OAuthProvider.twitter => FontAwesomeIcons.xTwitter,
-        _ => Icons.close,
+        _ => const FaIconData(Icons.close),
       };
 
   Color get btnBgColor => switch (this) {
@@ -281,7 +281,7 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
         Widget iconWidget = SizedBox(
           height: 48,
           width: 48,
-          child: Icon(
+          child: FaIcon(
             socialProvider.iconData,
             color: iconColor,
           ),
