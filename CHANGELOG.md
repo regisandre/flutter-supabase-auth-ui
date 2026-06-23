@@ -1,6 +1,7 @@
 ## 0.6.6
 
 - fix: Support `font_awesome_flutter` 11 (Flutter `IconData` is now `final`). Bumped constraint to `^11.0.0` and migrated `SupaSocialsAuth` to the new `FaIconData` API (`Icon` → `FaIcon`, getter returns `FaIconData`).
+- fix: Center icon-only social buttons. `FaIcon` (unlike `Icon`) has no internal `Center`, so FontAwesome icons (e.g. Apple) rendered small and top-left in the 48×48 box; wrapped in `Center` with an explicit `size`.
 
 ## 0.6.5
 

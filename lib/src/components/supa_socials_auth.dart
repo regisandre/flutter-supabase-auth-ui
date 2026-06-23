@@ -281,9 +281,15 @@ class _SupaSocialsAuthState extends State<SupaSocialsAuth> {
         Widget iconWidget = SizedBox(
           height: 48,
           width: 48,
-          child: FaIcon(
-            socialProvider.iconData,
-            color: iconColor,
+          // FaIcon (unlike Icon) has no internal Center/SizedBox, so it would
+          // render top-left at its default size. Wrap in Center + explicit size
+          // to keep non-square icons (e.g. Apple) centered in the 48x48 box.
+          child: Center(
+            child: FaIcon(
+              socialProvider.iconData,
+              color: iconColor,
+              size: 24,
+            ),
           ),
         );
         if (socialProvider == OAuthProvider.google && coloredBg) {
